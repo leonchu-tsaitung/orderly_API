@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Docs</title>
+  <style>
+    /* 讓頁面滿版，避免外邊距 */
+    html, body { height: 100%; margin: 0; }
+    redoc { height: 100%; }
+  </style>
+</head>
+<body>
+  <!-- 最簡使用法：custom element + spec-url 指向同資料夾的 openapi.yaml -->
+  <redoc spec-url="./openapi.yaml"></redoc>
+
+  <!-- 官方 CDN：ReDoc Standalone -->
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+</body>
+</html>
