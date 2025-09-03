@@ -27,14 +27,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/價格表建立請求'
+              $ref: '#/components/schemas/PriceListCreateRequest'
       responses:
         '201':
           description: 價格表建立成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/價格表'
+                $ref: '#/components/schemas/PriceList'
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -54,14 +54,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/價格表更新請求'
+              $ref: '#/components/schemas/PriceListUpdateRequest'
       responses:
         '200':
           description: 價格表更新成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/價格表'
+                $ref: '#/components/schemas/PriceList'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -81,7 +81,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/價格表'
+                $ref: '#/components/schemas/PriceList'
 
     delete:
       summary: 刪除價格表
@@ -126,7 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/價格表版本列表'
+                $ref: '#/components/schemas/PriceListVersionList'
 
   # 供應商端 - 訂單管理
   /suppliers/orders:
@@ -149,7 +149,7 @@ paths:
         - name: status
           in: query
           schema:
-            $ref: '#/components/schemas/訂單狀態'
+            $ref: '#/components/schemas/OrderStatus'
           description: 訂單狀態
         - name: customer_id
           in: query
@@ -172,7 +172,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單列表'
+                $ref: '#/components/schemas/OrderList'
 
   /suppliers/orders/{order_id}:
     get:
@@ -191,7 +191,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   /suppliers/orders/{order_id}/confirm:
     post:
@@ -209,14 +209,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單確認請求'
+              $ref: '#/components/schemas/OrderConfirmRequest'
       responses:
         '200':
           description: 確認成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
         '409':
           $ref: '#/components/responses/Conflict'
 
@@ -236,14 +236,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單出貨請求'
+              $ref: '#/components/schemas/OrderShipRequest'
       responses:
         '200':
           description: 出貨成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   /suppliers/orders/{order_id}/inventory-update:
     post:
@@ -261,14 +261,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/理貨更新請求'
+              $ref: '#/components/schemas/InventoryUpdateRequest'
       responses:
         '200':
           description: 理貨更新成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   /suppliers/orders/{order_id}/modify:
     post:
@@ -286,14 +286,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單異動請求'
+              $ref: '#/components/schemas/OrderModifyRequest'
       responses:
         '200':
           description: 異動成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   /suppliers/orders/{order_id}/return:
     post:
@@ -311,14 +311,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單退回請求'
+              $ref: '#/components/schemas/OrderReturnRequest'
       responses:
         '200':
           description: 退回成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   /suppliers/orders/{order_id}/changes:
     get:
@@ -337,7 +337,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/異動記錄列表'
+                $ref: '#/components/schemas/ChangeRecordList'
 
   # 餐廳端 - 價格表查詢
   /restaurants/price-lists:
@@ -366,7 +366,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/價格表列表'
+                $ref: '#/components/schemas/PriceListList'
 
   /restaurants/price-lists/{price_list_id}:
     get:
@@ -385,7 +385,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/價格表'
+                $ref: '#/components/schemas/PriceList'
 
   /restaurants/price-lists/{price_list_id}/versions:
     get:
@@ -414,7 +414,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/價格表版本列表'
+                $ref: '#/components/schemas/PriceListVersionList'
 
   # 餐廳端 - 訂單管理
   /restaurants/orders:
@@ -437,7 +437,7 @@ paths:
         - name: status
           in: query
           schema:
-            $ref: '#/components/schemas/訂單狀態'
+            $ref: '#/components/schemas/OrderStatus'
           description: 訂單狀態
         - name: supplier_id
           in: query
@@ -460,7 +460,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單列表'
+                $ref: '#/components/schemas/OrderList'
 
     post:
       summary: 建立訂單
@@ -470,14 +470,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單建立請求'
+              $ref: '#/components/schemas/OrderCreateRequest'
       responses:
         '201':
           description: 訂單建立成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   /restaurants/orders/{order_id}:
     get:
@@ -496,7 +496,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
     put:
       summary: 修改訂單
@@ -513,14 +513,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單修改請求'
+              $ref: '#/components/schemas/OrderUpdateRequest'
       responses:
         '200':
           description: 修改成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
         '409':
           $ref: '#/components/responses/Conflict'
 
@@ -540,14 +540,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單作廢請求'
+              $ref: '#/components/schemas/OrderCancelRequest'
       responses:
         '200':
           description: 作廢成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   /restaurants/orders/{order_id}/changes:
     get:
@@ -566,7 +566,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/異動記錄列表'
+                $ref: '#/components/schemas/ChangeRecordList'
 
   # 驗收 APP
   /orders/{order_id}/receive:
@@ -585,14 +585,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/訂單驗收請求'
+              $ref: '#/components/schemas/OrderReceiveRequest'
       responses:
         '200':
           description: 驗收成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/訂單'
+                $ref: '#/components/schemas/Order'
 
   # 通知管理
   /webhooks/register:
@@ -604,7 +604,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Webhook註冊請求'
+              $ref: '#/components/schemas/WebhookRegisterRequest'
       responses:
         '201':
           description: 註冊成功
@@ -629,7 +629,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Webhook更新請求'
+              $ref: '#/components/schemas/WebhookUpdateRequest'
       responses:
         '200':
           description: 更新成功
@@ -694,7 +694,7 @@ components:
         - supplier: 供應商相關
 
     # 價格表相關
-    價格表:
+    PriceList:
       type: object
       required: [price_list_id, supplier_id, customer_group_code, valid_start_date, valid_end_date, version_code, price_items]
       properties:
@@ -721,7 +721,7 @@ components:
         price_items:
           type: array
           items:
-            $ref: '#/components/schemas/價格元素'
+            $ref: '#/components/schemas/PriceItem'
           description: 價格元素清單
         created_at:
           type: string
@@ -732,7 +732,7 @@ components:
           format: date-time
           description: 更新時間
 
-    價格元素:
+    PriceItem:
       type: object
       required: [item_code, item_name, supply_status, price_type, unit, is_taxable]
       properties:
@@ -749,7 +749,7 @@ components:
           type: string
           description: 供應狀態
         price_type:
-          $ref: '#/components/schemas/價格類型'
+          $ref: '#/components/schemas/PriceType'
         price:
           type: number
           format: float
@@ -769,7 +769,7 @@ components:
           type: boolean
           description: 是否應稅
 
-    價格表建立請求:
+    PriceListCreateRequest:
       type: object
       required: [customer_group_code, valid_start_date, valid_end_date, version_code, price_items]
       properties:
@@ -790,10 +790,10 @@ components:
         price_items:
           type: array
           items:
-            $ref: '#/components/schemas/價格元素'
+            $ref: '#/components/schemas/PriceItem'
           description: 價格元素清單
 
-    價格表更新請求:
+    PriceListUpdateRequest:
       type: object
       properties:
         customer_group_code:
@@ -813,31 +813,31 @@ components:
         price_items:
           type: array
           items:
-            $ref: '#/components/schemas/價格元素'
+            $ref: '#/components/schemas/PriceItem'
           description: 價格元素清單
 
-    價格表列表:
+    PriceListList:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/價格表'
+            $ref: '#/components/schemas/PriceList'
         pagination:
-          $ref: '#/components/schemas/分頁資訊'
+          $ref: '#/components/schemas/PaginationInfo'
 
-    價格表版本列表:
+    PriceListVersionList:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/價格表'
+            $ref: '#/components/schemas/PriceList'
         pagination:
-          $ref: '#/components/schemas/分頁資訊'
+          $ref: '#/components/schemas/PaginationInfo'
 
     # 訂單相關
-    訂單:
+    Order:
       type: object
       required: [order_id, restaurant_id, supplier_id, order_date, delivery_date, price_list_version_code, delivery_unit, order_items, order_status, order_total]
       properties:
@@ -873,10 +873,10 @@ components:
         order_items:
           type: array
           items:
-            $ref: '#/components/schemas/需求元素'
+            $ref: '#/components/schemas/OrderItem'
           description: 需求元素清單
         order_status:
-          $ref: '#/components/schemas/訂單狀態'
+          $ref: '#/components/schemas/OrderStatus'
         shipping_fee:
           type: number
           format: float
@@ -910,7 +910,7 @@ components:
           format: date-time
           description: 更新時間
 
-    需求元素:
+    OrderItem:
       type: object
       required: [item_code, item_name, quantity, unit]
       properties:
@@ -944,7 +944,7 @@ components:
           type: string
           description: 計價單位
 
-    訂單建立請求:
+    OrderCreateRequest:
       type: object
       required: [supplier_id, delivery_date, price_list_version_code, delivery_unit, order_items]
       properties:
@@ -970,10 +970,10 @@ components:
         order_items:
           type: array
           items:
-            $ref: '#/components/schemas/需求元素'
+            $ref: '#/components/schemas/OrderItem'
           description: 需求元素清單
 
-    訂單修改請求:
+    OrderUpdateRequest:
       type: object
       properties:
         delivery_date:
@@ -992,24 +992,24 @@ components:
         order_items:
           type: array
           items:
-            $ref: '#/components/schemas/需求元素'
+            $ref: '#/components/schemas/OrderItem'
           description: 需求元素清單
 
-    訂單確認請求:
+    OrderConfirmRequest:
       type: object
       required: [confirmed_items, shipping_fee]
       properties:
         confirmed_items:
           type: array
           items:
-            $ref: '#/components/schemas/確認品項'
+            $ref: '#/components/schemas/ConfirmedItem'
           description: 確認品項清單
         shipping_fee:
           type: number
           format: float
           description: 運費
 
-    確認品項:
+    ConfirmedItem:
       type: object
       required: [item_code, confirmed_price]
       properties:
@@ -1025,16 +1025,16 @@ components:
           format: float
           description: 實際出貨量
 
-    訂單出貨請求:
+    OrderShipRequest:
       type: object
       properties:
         shipped_items:
           type: array
           items:
-            $ref: '#/components/schemas/出貨品項'
+            $ref: '#/components/schemas/ShippedItem'
           description: 出貨品項清單
 
-    出貨品項:
+    ShippedItem:
       type: object
       required: [item_code, actual_quantity]
       properties:
@@ -1046,19 +1046,19 @@ components:
           format: float
           description: 實際出貨量
 
-    理貨更新請求:
+    InventoryUpdateRequest:
       type: object
       required: [updated_items, reason_code]
       properties:
         updated_items:
           type: array
           items:
-            $ref: '#/components/schemas/理貨品項'
+            $ref: '#/components/schemas/InventoryItem'
           description: 理貨品項清單
         reason_code:
-          $ref: '#/components/schemas/原因碼'
+          $ref: '#/components/schemas/ReasonCode'
 
-    理貨品項:
+    InventoryItem:
       type: object
       required: [item_code, actual_quantity]
       properties:
@@ -1070,19 +1070,19 @@ components:
           format: float
           description: 實際出貨量
 
-    訂單異動請求:
+    OrderModifyRequest:
       type: object
       required: [modified_items, reason_code]
       properties:
         modified_items:
           type: array
           items:
-            $ref: '#/components/schemas/異動品項'
+            $ref: '#/components/schemas/ModifiedItem'
           description: 異動品項清單
         reason_code:
-          $ref: '#/components/schemas/原因碼'
+          $ref: '#/components/schemas/ReasonCode'
 
-    異動品項:
+    ModifiedItem:
       type: object
       required: [item_code]
       properties:
@@ -1101,31 +1101,31 @@ components:
           format: float
           description: 直接價格
 
-    訂單退回請求:
+    OrderReturnRequest:
       type: object
       required: [reason_code]
       properties:
         reason_code:
-          $ref: '#/components/schemas/原因碼'
+          $ref: '#/components/schemas/ReasonCode'
 
-    訂單作廢請求:
+    OrderCancelRequest:
       type: object
       required: [reason_code]
       properties:
         reason_code:
-          $ref: '#/components/schemas/原因碼'
+          $ref: '#/components/schemas/ReasonCode'
 
-    訂單驗收請求:
+    OrderReceiveRequest:
       type: object
       required: [received_items]
       properties:
         received_items:
           type: array
           items:
-            $ref: '#/components/schemas/驗收品項'
+            $ref: '#/components/schemas/ReceivedItem'
           description: 驗收品項清單
 
-    驗收品項:
+    ReceivedItem:
       type: object
       required: [item_code, received_quantity]
       properties:
@@ -1137,18 +1137,18 @@ components:
           format: float
           description: 實際收貨量
 
-    訂單列表:
+    OrderList:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/訂單'
+            $ref: '#/components/schemas/Order'
         pagination:
-          $ref: '#/components/schemas/分頁資訊'
+          $ref: '#/components/schemas/PaginationInfo'
 
     # 異動記錄
-    異動記錄:
+    ChangeRecord:
       type: object
       required: [change_id, order_id, operation_type, operation_time, operator_id, reason_code]
       properties:
@@ -1177,24 +1177,24 @@ components:
           additionalProperties: true
           description: 異動後值
         reason_code:
-          $ref: '#/components/schemas/原因碼'
+          $ref: '#/components/schemas/ReasonCode'
 
-    異動記錄列表:
+    ChangeRecordList:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/異動記錄'
+            $ref: '#/components/schemas/ChangeRecord'
         pagination:
-          $ref: '#/components/schemas/分頁資訊'
+          $ref: '#/components/schemas/PaginationInfo'
 
-    原因碼:
+    ReasonCode:
       type: object
       required: [category, reason, description]
       properties:
         category:
-          $ref: '#/components/schemas/原因分類'
+          $ref: '#/components/schemas/ReasonCategory'
         reason:
           type: string
           description: 具體原因
@@ -1227,7 +1227,7 @@ components:
           format: date-time
           description: 建立時間
 
-    Webhook註冊請求:
+    WebhookRegisterRequest:
       type: object
       required: [url, events]
       properties:
@@ -1241,7 +1241,7 @@ components:
             type: string
           description: 訂閱事件列表
 
-    Webhook更新請求:
+    WebhookUpdateRequest:
       type: object
       properties:
         url:
@@ -1258,7 +1258,7 @@ components:
           description: 是否啟用
 
     # 共用元件
-    分頁資訊:
+    PaginationInfo:
       type: object
       properties:
         current_page:
@@ -1274,7 +1274,7 @@ components:
           type: integer
           description: 總頁數
 
-    錯誤回應:
+    ErrorResponse:
       type: object
       properties:
         error:
@@ -1296,7 +1296,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/錯誤回應'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
             error:
               code: "INVALID_REQUEST"
@@ -1308,7 +1308,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/錯誤回應'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
             error:
               code: "UNAUTHORIZED"
@@ -1320,7 +1320,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/錯誤回應'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
             error:
               code: "FORBIDDEN"
@@ -1332,7 +1332,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/錯誤回應'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
             error:
               code: "NOT_FOUND"
@@ -1344,7 +1344,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/錯誤回應'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
             error:
               code: "ORDER_STATE_INVALID"
@@ -1356,7 +1356,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/錯誤回應'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
             error:
               code: "INTERNAL_ERROR"
