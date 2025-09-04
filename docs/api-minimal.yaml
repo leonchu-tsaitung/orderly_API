@@ -33,23 +33,32 @@ paths:
       description: 供應商查詢自己的報價單清單
       tags: [供應商 - 報價單]
       parameters:
-        - name: page
+        - name: customer_group_code
           in: query
           schema:
-            type: integer
-            default: 1
-        - name: page_size
+            type: string
+          description: 篩選特定客群的報價單
+        - name: status
           in: query
           schema:
-            type: integer
-            default: 20
+            type: string
+            enum: [active, expired]
+          description: 篩選報價單狀態
+        - name: created_after
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 篩選指定日期後建立的報價單
       responses:
         '200':
           description: 報價單清單
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PriceListList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceListSummary'
 
     post:
       summary: 建立報價單
@@ -67,7 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PriceList'
+                $ref: '#/components/schemas/PriceListCreateResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -147,23 +156,15 @@ paths:
           schema:
             $ref: '#/components/schemas/OrderStatus'
           description: 篩選訂單狀態
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            default: 20
       responses:
         '200':
           description: 訂單清單
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
 
   /suppliers/orders/{order_id}:
     get:
@@ -254,23 +255,15 @@ paths:
           schema:
             type: string
           description: 篩選特定供應商
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            default: 20
       responses:
         '200':
           description: 報價單清單
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PriceListList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceListSummary'
 
   /restaurants/price-lists/{price_list_id}:
     get:
@@ -311,23 +304,15 @@ paths:
           schema:
             type: string
           description: 篩選特定供應商
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            default: 20
       responses:
         '200':
           description: 訂單清單
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
 
     post:
       summary: 建立訂單
@@ -398,6 +383,62 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+    delete:
+      summary: 取消訂單
+      description: 餐廳取消已建立的訂單
+      tags: [餐廳 - 訂單]
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 訂單ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCancelRequest'
+      responses:
+        '200':
+          description: 取消成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCancelResponse'
+        '400':
+          description: 請求參數錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 訂單不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 訂單狀態不允許取消
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: "INVALID_ORDER_STATUS"
+                      message:
+                        type: string
+                        example: "訂單已確認，無法取消"
+                      current_status:
+                        type: string
+                        description: 目前訂單狀態
+
 components:
   securitySchemes:
     BearerAuth:
@@ -409,17 +450,18 @@ components:
     # 基本資料型別
     OrderStatus:
       type: string
-      enum: [created, confirmed, completed]
+      enum: [created, confirmed, completed, cancelled]
       description: |
         訂單狀態
         - created: 已建立
         - confirmed: 已確認
         - completed: 已完成
+        - cancelled: 已取消
 
     # 報價單
     PriceList:
       type: object
-      required: [price_list_id, supplier_id, customer_group_code, valid_start_date, valid_end_date, price_items]
+      required: [price_list_id, supplier_id, customer_group_code, valid_end_date, price_items]
       properties:
         price_list_id:
           type: string
@@ -430,10 +472,6 @@ components:
         customer_group_code:
           type: string
           description: 適用客群代碼
-        valid_start_date:
-          type: string
-          format: date
-          description: 有效起始日期
         valid_end_date:
           type: string
           format: date
@@ -473,15 +511,11 @@ components:
 
     PriceListCreateRequest:
       type: object
-      required: [customer_group_code, valid_start_date, valid_end_date, price_items]
+      required: [customer_group_code, valid_end_date, price_items]
       properties:
         customer_group_code:
           type: string
           description: 適用客群代碼
-        valid_start_date:
-          type: string
-          format: date
-          description: 有效起始日期
         valid_end_date:
           type: string
           format: date
@@ -499,10 +533,6 @@ components:
         customer_group_code:
           type: string
           description: 適用客群代碼
-        valid_start_date:
-          type: string
-          format: date
-          description: 有效起始日期
         valid_end_date:
           type: string
           format: date
@@ -513,15 +543,61 @@ components:
             $ref: '#/components/schemas/PriceItem'
           description: 商品價格清單
 
-    PriceListList:
+    PriceListSummary:
       type: object
+      required: [price_list_id, supplier_id, customer_group_code, valid_end_date]
       properties:
-        data:
+        price_list_id:
+          type: string
+          description: 報價單ID
+        supplier_id:
+          type: string
+          description: 供應商ID
+        customer_group_code:
+          type: string
+          description: 適用客群代碼
+        valid_end_date:
+          type: string
+          format: date
+          description: 有效結束日期
+        item_count:
+          type: integer
+          description: 包含的商品數量
+        created_at:
+          type: string
+          format: date-time
+          description: 建立時間
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新時間
+
+    PriceListCreateResponse:
+      type: object
+      required: [price_list_id, message]
+      properties:
+        price_list_id:
+          type: string
+          description: 新建立的報價單ID
+        message:
+          type: string
+          description: 成功訊息
+        success_count:
+          type: integer
+          description: 成功建立的商品數量
+        failed_items:
           type: array
           items:
-            $ref: '#/components/schemas/PriceList'
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
+            type: object
+            properties:
+              item_code:
+                type: string
+                description: 商品代碼
+              error:
+                type: string
+                description: 錯誤訊息
+          description: 失敗的商品及錯誤訊息
+
 
     # 訂單
     Order:
@@ -699,32 +775,46 @@ components:
           description: 確認商品清單
           minItems: 1
 
-    OrderList:
+    OrderCancelRequest:
       type: object
+      required: [reason_code, reason_text]
       properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Order'
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
+        reason_code:
+          type: string
+          enum: [customer_change_mind, wrong_order, supplier_issue, other]
+          description: |
+            取消原因分類
+            - customer_change_mind: 客戶改變主意
+            - wrong_order: 下錯訂單
+            - supplier_issue: 供應商問題
+            - other: 其他原因
+        reason_text:
+          type: string
+          description: 取消原因詳細說明
+          minLength: 1
+          maxLength: 500
+
+    OrderCancelResponse:
+      type: object
+      required: [message, cancelled_at, order_id]
+      properties:
+        message:
+          type: string
+          description: 成功訊息
+          example: "訂單已成功取消"
+        cancelled_at:
+          type: string
+          format: date-time
+          description: 取消時間
+        order_id:
+          type: string
+          description: 已取消的訂單ID
+        previous_status:
+          type: string
+          description: 取消前的訂單狀態
+
 
     # 共用元件
-    PaginationInfo:
-      type: object
-      properties:
-        current_page:
-          type: integer
-          description: 目前頁數
-        page_size:
-          type: integer
-          description: 每頁筆數
-        total_count:
-          type: integer
-          description: 總筆數
-        total_pages:
-          type: integer
-          description: 總頁數
 
     ErrorResponse:
       type: object
