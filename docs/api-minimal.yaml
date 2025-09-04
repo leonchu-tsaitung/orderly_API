@@ -1,0 +1,787 @@
+openapi: 3.1.0
+info:
+  title: Orderly API Minimal - 餐廳供應商訂單系統
+  description: |
+    根據 Issue #30 需求精簡的 API 版本
+    
+    **供應商功能:**
+    - 報價單 CRUD + listing
+    - 訂單 detail + listing + modify + confirm
+    
+    **餐廳功能:**
+    - 報價單 listing + detail
+    - 訂單 create + modify + detail + listing
+  version: 1.0.0-minimal
+  contact:
+    name: API Support
+    email: support@orderly-api.com
+
+servers:
+  - url: https://api.orderly.com/v1
+    description: 正式環境
+  - url: https://staging-api.orderly.com/v1
+    description: 測試環境
+
+security:
+  - BearerAuth: []
+
+paths:
+  # 供應商端 - 報價單管理
+  /suppliers/price-lists:
+    get:
+      summary: 查詢報價單清單
+      description: 供應商查詢自己的報價單清單
+      tags: [供應商 - 報價單]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 報價單清單
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceListList'
+
+    post:
+      summary: 建立報價單
+      description: 供應商建立新的報價單
+      tags: [供應商 - 報價單]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceListCreateRequest'
+      responses:
+        '201':
+          description: 報價單建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /suppliers/price-lists/{price_list_id}:
+    get:
+      summary: 查詢報價單詳情
+      description: 取得指定報價單的完整資訊
+      tags: [供應商 - 報價單]
+      parameters:
+        - name: price_list_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 報價單ID
+      responses:
+        '200':
+          description: 報價單詳情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceList'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: 更新報價單
+      description: 供應商更新報價單資訊
+      tags: [供應商 - 報價單]
+      parameters:
+        - name: price_list_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 報價單ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceListUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceList'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: 刪除報價單
+      description: 供應商刪除報價單
+      tags: [供應商 - 報價單]
+      parameters:
+        - name: price_list_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 報價單ID
+      responses:
+        '204':
+          description: 刪除成功
+
+  # 供應商端 - 訂單管理
+  /suppliers/orders:
+    get:
+      summary: 查詢訂單清單
+      description: 供應商查詢收到的訂單清單
+      tags: [供應商 - 訂單]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+          description: 篩選訂單狀態
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 訂單清單
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+
+  /suppliers/orders/{order_id}:
+    get:
+      summary: 查詢訂單詳情
+      description: 供應商查詢指定訂單的完整資訊
+      tags: [供應商 - 訂單]
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 訂單ID
+      responses:
+        '200':
+          description: 訂單詳情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: 修改訂單
+      description: 供應商修改訂單資訊
+      tags: [供應商 - 訂單]
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 訂單ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierOrderUpdateRequest'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /suppliers/orders/{order_id}/confirm:
+    post:
+      summary: 確認訂單
+      description: 供應商確認訂單
+      tags: [供應商 - 訂單]
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 訂單ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderConfirmRequest'
+      responses:
+        '200':
+          description: 確認成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  # 餐廳端 - 報價單查詢
+  /restaurants/price-lists:
+    get:
+      summary: 查詢報價單清單
+      description: 餐廳查詢可用的供應商報價單清單
+      tags: [餐廳 - 報價單]
+      parameters:
+        - name: supplier_id
+          in: query
+          schema:
+            type: string
+          description: 篩選特定供應商
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 報價單清單
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceListList'
+
+  /restaurants/price-lists/{price_list_id}:
+    get:
+      summary: 查詢報價單詳情
+      description: 餐廳查詢指定報價單的完整資訊
+      tags: [餐廳 - 報價單]
+      parameters:
+        - name: price_list_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 報價單ID
+      responses:
+        '200':
+          description: 報價單詳情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceList'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # 餐廳端 - 訂單管理
+  /restaurants/orders:
+    get:
+      summary: 查詢訂單清單
+      description: 餐廳查詢自己的訂單清單
+      tags: [餐廳 - 訂單]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+          description: 篩選訂單狀態
+        - name: supplier_id
+          in: query
+          schema:
+            type: string
+          description: 篩選特定供應商
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 訂單清單
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+
+    post:
+      summary: 建立訂單
+      description: 餐廳建立新訂單
+      tags: [餐廳 - 訂單]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+      responses:
+        '201':
+          description: 訂單建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /restaurants/orders/{order_id}:
+    get:
+      summary: 查詢訂單詳情
+      description: 餐廳查詢指定訂單的完整資訊
+      tags: [餐廳 - 訂單]
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 訂單ID
+      responses:
+        '200':
+          description: 訂單詳情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: 修改訂單
+      description: 餐廳修改訂單資訊
+      tags: [餐廳 - 訂單]
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 訂單ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantOrderUpdateRequest'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # 基本資料型別
+    OrderStatus:
+      type: string
+      enum: [created, confirmed, completed]
+      description: |
+        訂單狀態
+        - created: 已建立
+        - confirmed: 已確認
+        - completed: 已完成
+
+    # 報價單
+    PriceList:
+      type: object
+      required: [price_list_id, supplier_id, customer_group_code, valid_start_date, valid_end_date, price_items]
+      properties:
+        price_list_id:
+          type: string
+          description: 報價單ID
+        supplier_id:
+          type: string
+          description: 供應商ID
+        customer_group_code:
+          type: string
+          description: 適用客群代碼
+        valid_start_date:
+          type: string
+          format: date
+          description: 有效起始日期
+        valid_end_date:
+          type: string
+          format: date
+          description: 有效結束日期
+        price_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceItem'
+          description: 商品價格清單
+        created_at:
+          type: string
+          format: date-time
+          description: 建立時間
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新時間
+
+    PriceItem:
+      type: object
+      required: [item_code, item_name, price, unit]
+      properties:
+        item_code:
+          type: string
+          description: 商品代碼
+        item_name:
+          type: string
+          description: 商品名稱
+        price:
+          type: number
+          format: float
+          minimum: 0
+          description: 商品價格
+        unit:
+          type: string
+          description: 計價單位
+
+    PriceListCreateRequest:
+      type: object
+      required: [customer_group_code, valid_start_date, valid_end_date, price_items]
+      properties:
+        customer_group_code:
+          type: string
+          description: 適用客群代碼
+        valid_start_date:
+          type: string
+          format: date
+          description: 有效起始日期
+        valid_end_date:
+          type: string
+          format: date
+          description: 有效結束日期
+        price_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceItem'
+          description: 商品價格清單
+          minItems: 1
+
+    PriceListUpdateRequest:
+      type: object
+      properties:
+        customer_group_code:
+          type: string
+          description: 適用客群代碼
+        valid_start_date:
+          type: string
+          format: date
+          description: 有效起始日期
+        valid_end_date:
+          type: string
+          format: date
+          description: 有效結束日期
+        price_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceItem'
+          description: 商品價格清單
+
+    PriceListList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceList'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    # 訂單
+    Order:
+      type: object
+      required: [order_id, restaurant_id, supplier_id, order_date, delivery_date, order_status, order_items, order_total]
+      properties:
+        order_id:
+          type: string
+          description: 訂單ID
+        restaurant_id:
+          type: string
+          description: 餐廳ID
+        supplier_id:
+          type: string
+          description: 供應商ID
+        order_date:
+          type: string
+          format: date-time
+          description: 下訂時間
+        delivery_date:
+          type: string
+          format: date
+          description: 交貨日期
+        order_status:
+          $ref: '#/components/schemas/OrderStatus'
+        order_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          description: 訂單商品清單
+        order_total:
+          type: number
+          format: float
+          minimum: 0
+          description: 訂單總額
+        created_at:
+          type: string
+          format: date-time
+          description: 建立時間
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新時間
+
+    OrderItem:
+      type: object
+      required: [item_code, item_name, quantity, price, unit]
+      properties:
+        item_code:
+          type: string
+          description: 商品代碼
+        item_name:
+          type: string
+          description: 商品名稱
+        quantity:
+          type: number
+          format: float
+          minimum: 0
+          description: 訂購數量
+        price:
+          type: number
+          format: float
+          minimum: 0
+          description: 商品單價
+        unit:
+          type: string
+          description: 計價單位
+        subtotal:
+          type: number
+          format: float
+          minimum: 0
+          description: 小計金額
+
+    OrderCreateRequest:
+      type: object
+      required: [supplier_id, delivery_date, order_items]
+      properties:
+        supplier_id:
+          type: string
+          description: 供應商ID
+        delivery_date:
+          type: string
+          format: date
+          description: 希望交貨日期
+        order_items:
+          type: array
+          items:
+            type: object
+            required: [item_code, quantity]
+            properties:
+              item_code:
+                type: string
+                description: 商品代碼
+              quantity:
+                type: number
+                format: float
+                minimum: 0
+                description: 訂購數量
+          description: 訂購商品清單
+          minItems: 1
+
+    SupplierOrderUpdateRequest:
+      type: object
+      properties:
+        delivery_date:
+          type: string
+          format: date
+          description: 交貨日期
+        order_items:
+          type: array
+          items:
+            type: object
+            properties:
+              item_code:
+                type: string
+                description: 商品代碼
+              quantity:
+                type: number
+                format: float
+                minimum: 0
+                description: 數量
+              price:
+                type: number
+                format: float
+                minimum: 0
+                description: 價格
+          description: 訂單商品清單
+
+    RestaurantOrderUpdateRequest:
+      type: object
+      properties:
+        delivery_date:
+          type: string
+          format: date
+          description: 希望交貨日期
+        order_items:
+          type: array
+          items:
+            type: object
+            required: [item_code, quantity]
+            properties:
+              item_code:
+                type: string
+                description: 商品代碼
+              quantity:
+                type: number
+                format: float
+                minimum: 0
+                description: 訂購數量
+          description: 訂購商品清單
+
+    OrderConfirmRequest:
+      type: object
+      required: [confirmed_items]
+      properties:
+        confirmed_items:
+          type: array
+          items:
+            type: object
+            required: [item_code, confirmed_price, confirmed_quantity]
+            properties:
+              item_code:
+                type: string
+                description: 商品代碼
+              confirmed_price:
+                type: number
+                format: float
+                minimum: 0
+                description: 確認價格
+              confirmed_quantity:
+                type: number
+                format: float
+                minimum: 0
+                description: 確認數量
+          description: 確認商品清單
+          minItems: 1
+
+    OrderList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    # 共用元件
+    PaginationInfo:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          description: 目前頁數
+        page_size:
+          type: integer
+          description: 每頁筆數
+        total_count:
+          type: integer
+          description: 總筆數
+        total_pages:
+          type: integer
+          description: 總頁數
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: 錯誤代碼
+            message:
+              type: string
+              description: 錯誤訊息
+            details:
+              type: string
+              description: 詳細說明
+
+  responses:
+    BadRequest:
+      description: 請求格式錯誤
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: "INVALID_REQUEST"
+              message: "請求格式錯誤"
+              details: "必填欄位缺失或格式不正確"
+
+    Unauthorized:
+      description: 未認證
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: 資源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Conflict:
+      description: 業務邏輯衝突
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: 供應商 - 報價單
+    description: 供應商報價單管理功能
+  - name: 供應商 - 訂單
+    description: 供應商訂單管理功能
+  - name: 餐廳 - 報價單
+    description: 餐廳報價單查詢功能
+  - name: 餐廳 - 訂單
+    description: 餐廳訂單管理功能
