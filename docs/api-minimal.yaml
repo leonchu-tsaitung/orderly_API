@@ -11,6 +11,12 @@ info:
     **餐廳功能:**
     - 報價單 listing + detail
     - 訂單 create + modify + detail + listing
+    
+    **重要業務邏輯:**
+    - 下訂單時會自動驗證價格表有效性
+    - 訂單中的商品價格必須與當前有效價格表完全一致
+    - 所有價格相關操作都基於有效期內的價格表
+    - 價格不符將導致訂單建立失敗
   version: 1.0.0-minimal
   contact:
     name: API Support
@@ -316,7 +322,15 @@ paths:
 
     post:
       summary: 建立訂單
-      description: 餐廳建立新訂單
+      description: |
+        餐廳建立新訂單
+        
+        **價格表驗證邏輯:**
+        - 系統會自動找到供應商對應客戶群組的有效價格表
+        - 驗證價格表是否在有效期內（valid_end_date >= 當前日期）
+        - 確認所有訂購商品都存在於價格表中
+        - **嚴格價格比對：** 每個商品的 expected_price 必須與價格表中的價格完全一致
+        - 如果任何驗證失敗，回傳 422 錯誤並附上詳細錯誤資訊
       tags: [餐廳 - 訂單]
       requestBody:
         required: true
@@ -333,6 +347,8 @@ paths:
                 $ref: '#/components/schemas/Order'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
 
   /restaurants/orders/{order_id}:
     get:
@@ -686,17 +702,36 @@ components:
           type: array
           items:
             type: object
-            required: [item_code, quantity]
+            required: [item_code, quantity, expected_price]
             properties:
               item_code:
                 type: string
-                description: 商品代碼
+                description: |
+                  商品代碼
+                  
+                  **注意：** 系統會驗證此商品代碼是否存在於供應商的有效價格表中
               quantity:
                 type: number
                 format: float
                 minimum: 0
                 description: 訂購數量
-          description: 訂購商品清單
+              expected_price:
+                type: number
+                format: float
+                minimum: 0
+                description: |
+                  預期單價
+                  
+                  **重要：** 此價格必須與當前有效價格表中的價格完全一致，否則訂單將被拒絕
+          description: |
+            訂購商品清單
+            
+            **價格表驗證說明：**
+            - 系統會自動找到供應商對應客戶群組的有效價格表
+            - 驗證價格表是否在有效期內（valid_end_date >= 當前日期）
+            - 確認所有 item_code 都存在於價格表中
+            - **價格比對驗證：** 每個商品的 expected_price 必須與價格表中的價格完全一致
+            - 如任何驗證失敗，將回傳 422 錯誤
           minItems: 1
 
     SupplierOrderUpdateRequest:
@@ -865,6 +900,56 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+
+    UnprocessableEntity:
+      description: 價格表驗證失敗
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            price_list_expired:
+              summary: 價格表已過期
+              value:
+                error:
+                  code: "PRICE_LIST_EXPIRED"
+                  message: "價格表已過期"
+                  details: "供應商的價格表已於指定日期過期，請聯絡供應商更新價格表"
+            item_not_found:
+              summary: 商品不存在於價格表
+              value:
+                error:
+                  code: "ITEM_NOT_FOUND"
+                  message: "商品不存在"
+                  details: "指定的商品代碼不存在於當前有效的價格表中"
+            no_valid_price_list:
+              summary: 無可用價格表
+              value:
+                error:
+                  code: "NO_VALID_PRICE_LIST"
+                  message: "無可用的價格表"
+                  details: "供應商目前沒有適用於您客戶群組的有效價格表"
+            price_mismatch:
+              summary: 價格不符
+              value:
+                error:
+                  code: "PRICE_MISMATCH"
+                  message: "商品價格不符"
+                  details: "商品 ITEM001 的預期價格 $100.00 與價格表中的價格 $120.00 不符"
+            multiple_price_errors:
+              summary: 多項價格錯誤
+              value:
+                error:
+                  code: "MULTIPLE_PRICE_ERRORS"
+                  message: "多項商品價格驗證失敗"
+                  details: "發現 3 項商品的價格與價格表不符，請檢查並修正後重新提交"
+                  invalid_items:
+                    - item_code: "ITEM001"
+                      expected_price: 100.00
+                      actual_price: 120.00
+                    - item_code: "ITEM002"
+                      expected_price: 50.00
+                      actual_price: 55.00
 
 tags:
   - name: 供應商 - 報價單
